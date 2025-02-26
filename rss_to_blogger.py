@@ -9,10 +9,13 @@ RSS_FEED_URLS = os.environ.get("RSS_FEED_URLS")  # Comma-separated URLs
 
 
 def fetch_rss(feed_url):
-    response = requests.get(feed_url)
-    if response.status_code == 200:
+    try:
+        response = requests.get(feed_url)
+        response.raise_for_status()
+        print(f"Fetched RSS feed successfully: {feed_url}")
         return response.text
-    else:
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching RSS feed: {feed_url}\n{e}")
         return None
 
 
@@ -21,23 +24,25 @@ def extract_content(rss_xml):
     items = soup.find_all("item")
     posts = []
 
+    if not items:
+        print("No items found in the RSS feed!")
+    
     for item in items:
-        title = item.title.text
-        link = item.link.text
-        description = item.description.text
+        title = item.title.text if item.title else "Untitled Post"
+        link = item.link.text if item.link else ""
+        description = item.description.text if item.description else "No description available."
         pub_date = item.pubDate.text if item.pubDate else datetime.now().isoformat()
 
         content = f"<p>{description}</p>"
         media = item.find("media:content") or item.find("enclosure")
-        if media:
+        if media and media.get("url"):
             content += f'<video controls style="max-width: 100%; height: auto;">' \
-           f'<source src="{media["url"]}" type="video/mp4">' \
-           'Your browser does not support the video tag.' \
-           '</video>'
+                       f'<source src="{media["url"]}" type="video/mp4">' \
+                       'Your browser does not support the video tag.' \
+                       '</video>'
 
-        
         tags = extract_tags(title)
-        
+
         posts.append({
             "title": title,
             "content": content,
@@ -45,6 +50,8 @@ def extract_content(rss_xml):
             "link": link,
             "pub_date": pub_date
         })
+    
+    print(f"Extracted {len(posts)} posts from RSS feed.")
     return posts
 
 
@@ -62,24 +69,36 @@ def post_to_blogger(post):
         "content": post["content"],
         "labels": post["tags"]
     }
-    response = requests.post(url, json=data)
-    return response.json()
+    try:
+        response = requests.post(url, json=data)
+        response.raise_for_status()
+        print(f"Post '{post['title']}' published successfully!")
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to publish post '{post['title']}':\n{e}\nResponse: {response.text}")
+        return {}
 
 
 if __name__ == "__main__":
-    feed_urls = RSS_FEED_URLS.split(",")
-    for feed_url in feed_urls:
-        print(f"Using RSS feed URL: {feed_url.strip()}")
-        rss_content = fetch_rss(feed_url.strip())
-        if rss_content:
-            posts = extract_content(rss_content)
-            for post in posts:
-                response = post_to_blogger(post)
-                if response.get("id"):
-                    print(f"Post '{post['title']}' created successfully!")
-                else:
-                    print(f"Failed to create post: {response}")
-        else:
-            print(f"Failed to fetch RSS feed: {feed_url}")
+    if not BLOG_ID or not API_KEY or not RSS_FEED_URLS:
+        print("Error: Missing environment variables (BLOGGER_BLOG_ID, API_KEY, or RSS_FEED_URLS). Check your secrets!")
+    else:
+        feed_urls = RSS_FEED_URLS.split(",")
+        for feed_url in feed_urls:
+            feed_url = feed_url.strip()
+            print(f"Processing RSS feed: {feed_url}")
+            rss_content = fetch_rss(feed_url)
+            if rss_content:
+                posts = extract_content(rss_content)
+                for post in posts:
+                    response = post_to_blogger(post)
+                    if response.get("id"):
+                        print(f"✅ Post '{post['title']}' created with ID: {response['id']}")
+                    else:
+                        print(f"❌ Failed to create post for '{post['title']}'. Check the API response.")
+            else:
+                print(f"❌ No content fetched from: {feed_url}")
 
-    print("Blog updated successfully!")
+        print("✅ Blog update process completed!")
+
+# 🚨 اب GitHub action run کریں اور logs چیک کریں — ہمیں پتہ چل جائے گا کہاں مسئلہ ہے! 🚀
