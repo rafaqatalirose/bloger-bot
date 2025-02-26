@@ -69,6 +69,7 @@ def post_to_blogger(post):
 if __name__ == "__main__":
     feed_urls = RSS_FEED_URLS.split(",")
     for feed_url in feed_urls:
+        print(f"Using RSS feed URL: {feed_url.strip()}")
         rss_content = fetch_rss(feed_url.strip())
         if rss_content:
             posts = extract_content(rss_content)
