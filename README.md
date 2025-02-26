@@ -1,39 +1,35 @@
+import os
 import requests
-import feedparser
 
-# Blogger API details
-BLOG_ID = '3540900078974238078'
-API_KEY = 'AIzaSyDYltDDbD1pEgKAvf1k1mCtOOP7Y6ECXis'
+BLOG_ID = os.environ.get("BLOGGER_BLOG_ID")
+API_KEY = os.environ.get("BLOGGER_API_KEY")
+RSS_FEED_URL = os.environ.get("RSS_FEED_URL")
 
-# RSS feed URL
-RSS_FEED_URL = 'https://your-rss-feed-url.com/feed'
 
-# Function to create a blog post
-def create_blog_post(title, content):
-    url = f'https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts?key={API_KEY}'
-    
-    post_data = {
+def fetch_rss():
+    response = requests.get(RSS_FEED_URL)
+    if response.status_code == 200:
+        return response.text
+    else:
+        return None
+
+
+def post_to_blogger(title, content):
+    url = f"https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts?key={API_KEY}"
+    data = {
         "kind": "blogger#post",
         "title": title,
         "content": content
     }
-    
-    response = requests.post(url, json=post_data)
-    if response.status_code == 200:
-        print(f'Post created: {title}')
+    response = requests.post(url, json=data)
+    return response.json()
+
+
+if __name__ == "__main__":
+    rss_content = fetch_rss()
+    if rss_content:
+        # Example: posting static content (we can parse RSS later)
+        post_to_blogger("New Post from RSS", rss_content)
+        print("Post created successfully!")
     else:
-        print(f'Failed to create post: {response.status_code} - {response.text}')
-
-# Function to fetch and post RSS feed
-def fetch_and_post_rss():
-    feed = feedparser.parse(RSS_FEED_URL)
-    
-    for entry in feed.entries[:5]:  # Post the latest 5 entries
-        title = entry.title
-        content = entry.summary + f'<br/><a href="{entry.link}">Read more</a>'
-        create_blog_post(title, content)
-
-if __name__ == '__main__':
-    fetch_and_post_rss()
-
-
+        print("Failed to fetch RSS feed.")
