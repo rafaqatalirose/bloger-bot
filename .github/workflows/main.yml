@@ -1,7 +1,9 @@
 name: RSS to Blogger Auto Post
 
 on:
-  workflow_dispatch:  # Manual trigger
+  schedule:
+    - cron: '0 * * * *'  # ہر 1 گھنٹے بعد چلانے کے لیے
+  workflow_dispatch:     # Manual run کے لیے
 
 jobs:
   post-to-blogger:
@@ -17,11 +19,12 @@ jobs:
         python-version: '3.x'
 
     - name: Install dependencies
-      run: pip install requests
+      run: |
+        pip install requests beautifulsoup4
 
     - name: Run script to post to Blogger
+      run: python rss_to_blogger.py
       env:
         BLOGGER_BLOG_ID: ${{ secrets.BLOGGER_BLOG_ID }}
-        API_KEY: ${{ secrets.BLOGGER_API_KEY }}
-        RSS_FEED_URL: ${{ secrets.RSS_FEED_URL }}
-      run: python rss_to_blogger.py
+        BLOGGER_API_KEY: ${{ secrets.BLOGGER_API_KEY }}
+        RSS_FEED_URLS: ${{ secrets.RSS_FEED_URLS }}
