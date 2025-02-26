@@ -30,10 +30,11 @@ def extract_content(rss_xml):
         content = f"<p>{description}</p>"
         media = item.find("media:content") or item.find("enclosure")
         if media:
-            content += f'<video controls style="max-width: 100%; height: auto;">
-                            <source src="{media['url']}" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>'
+            content += f'<video controls style="max-width: 100%; height: auto;">' \
+           f'<source src="{media["url"]}" type="video/mp4">' \
+           'Your browser does not support the video tag.' \
+           '</video>'
+
         
         tags = extract_tags(title)
         
