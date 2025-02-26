@@ -1,0 +1,27 @@
+name: RSS to Blogger Auto Post
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  post-to-blogger:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: pip install requests
+
+    - name: Run script to post to Blogger
+      env:
+        BLOGGER_BLOG_ID: ${{ secrets.BLOGGER_BLOG_ID }}
+        API_KEY: ${{ secrets.BLOGGER_API_KEY }}
+        RSS_FEED_URL: ${{ secrets.RSS_FEED_URL }}
+      run: python rss_to_blogger.py
