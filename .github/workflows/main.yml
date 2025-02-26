@@ -18,12 +18,11 @@ jobs:
       with:
         python-version: '3.x'
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+    - name: Install dependencies
+      run: pip install -r requirements.txt
 
-      - name: Run Python script
-        run: python rss_to_blogger.py
-
+    - name: Run Python script
+      run: python rss_to_blogger.py
       env:
         BLOGGER_BLOG_ID: ${{ secrets.BLOGGER_BLOG_ID }}
         BLOGGER_API_KEY: ${{ secrets.BLOGGER_API_KEY }}
