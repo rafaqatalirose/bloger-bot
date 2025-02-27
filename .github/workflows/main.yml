@@ -1,32 +1,36 @@
-name: RSS to Blogger Auto-Poster
+name: Python application
 
 on:
-  schedule:
-    - cron: '0 * * * *'  # ہر گھنٹے بعد چلے گا
-  workflow_dispatch:      # Manual run کا option
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  run-script:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
 
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install lxml
-          pip install requests beautifulsoup4 python-dotenv
+    - name: Decode service account key
+      run: |
+        echo ${{ secrets.SERVICE_ACCOUNT_KEY }} | base64 --decode > service-account-file.json
 
-      - name: Run Script
-        env:
-          BLOGGER_BLOG_ID: ${{ secrets.BLOGGER_BLOG_ID }}
-          BLOGGER_API_KEY: ${{ secrets.BLOGGER_API_KEY }}
-          RSS_FEED_URLS: ${{ secrets.RSS_FEED_URLS }}
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        run: python rss_to_blogger.py
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Run script
+      run: python rss_to_blogger.py
+      env:
+        BLOGGER_BLOG_ID: ${{ secrets.BLOGGER_BLOG_ID }}
+        RSS_FEED_URLS: ${{ secrets.RSS_FEED_URLS }}
+        SERVICE_ACCOUNT_FILE: ${{ github.workspace }}/service-account-file.json
