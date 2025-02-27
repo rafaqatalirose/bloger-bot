@@ -7,6 +7,13 @@ BLOG_ID = os.environ.get("BLOGGER_BLOG_ID")
 API_KEY = os.environ.get("BLOGGER_API_KEY")
 RSS_FEED_URLS = os.environ.get("RSS_FEED_URLS")  # Comma-separated URLs
 
+import os
+
+headers = {
+    "Authorization": f"Bearer {os.environ.get('ACCESS_TOKEN')}",
+    "Content-Type": "application/json"
+}
+
 
 def fetch_rss(feed_url):
     try:
