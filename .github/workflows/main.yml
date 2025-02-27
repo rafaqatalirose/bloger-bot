@@ -22,7 +22,7 @@ jobs:
 
     - name: Decode service account key
       run: |
-        echo ${{ secrets.SERVICE_ACCOUNT_KEY }} | base64 --decode > service-account-file.json
+        echo "${{ secrets.SERVICE_ACCOUNT_KEY }}" | base64 --decode > service-account-file.json
 
     - name: Install dependencies
       run: |
