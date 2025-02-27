@@ -1,29 +1,29 @@
-name: RSS to Blogger Auto Post
+name: RSS to Blogger Auto-Poster
 
 on:
   schedule:
-    - cron: '0 * * * *'  # ہر 1 گھنٹے بعد چلانے کے لیے
-  workflow_dispatch:     # Manual run کے لیے
+    - cron: '0 * * * *'  # ہر گھنٹے بعد چلے گا
+  workflow_dispatch:      # Manual run کا option
 
 jobs:
-  post-to-blogger:
+  run-script:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
 
-    - name: Install dependencies
-      run: pip install -r requirements.txt
+      - name: Install Dependencies
+        run: pip install requests beautifulsoup4 python-dotenv
 
-    - name: Run Python script
-      run: python rss_to_blogger.py
-      env:
-        BLOGGER_BLOG_ID: ${{ secrets.BLOGGER_BLOG_ID }}
-        BLOGGER_API_KEY: ${{ secrets.BLOGGER_API_KEY }}
-        RSS_FEED_URLS: ${{ secrets.RSS_FEED_URLS }}
+      - name: Run Script
+        env:
+          BLOGGER_BLOG_ID: ${{ secrets.BLOGGER_BLOG_ID }}
+          BLOGGER_API_KEY: ${{ secrets.BLOGGER_API_KEY }}
+          RSS_FEED_URLS: ${{ secrets.RSS_FEED_URLS }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: python rss_to_blogger.py
