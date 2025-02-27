@@ -4,12 +4,12 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from google.oauth2 import service_account
 from google.auth.transport.requests import Request
-from google.auth import exceptions
 
 BLOG_ID = os.environ.get("BLOGGER_BLOG_ID")
 RSS_FEED_URLS = os.environ.get("RSS_FEED_URLS")  # Comma-separated URLs
+SERVICE_ACCOUNT_FILE = os.environ.get("SERVICE_ACCOUNT_FILE")
 
-credentials = service_account.Credentials.from_service_account_file('path/to/your/service-account-file.json')
+credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
 scoped_credentials = credentials.with_scopes(['https://www.googleapis.com/auth/blogger'])
 
 def fetch_rss(feed_url):
