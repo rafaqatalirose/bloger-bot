@@ -3,7 +3,6 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 from google.oauth2 import service_account
-from google.auth.transport.requests import Request
 
 BLOG_ID = os.environ.get("BLOGGER_BLOG_ID")
 RSS_FEED_URLS = os.environ.get("RSS_FEED_URLS")  # Comma-separated URLs
