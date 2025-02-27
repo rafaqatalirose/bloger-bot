@@ -20,9 +20,8 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Decode service account key
-      run: |
-        echo "${{ secrets.SERVICE_ACCOUNT_KEY }}" | base64 --decode > service-account-file.json
+    - name: Create service account file
+      run: echo "${{ secrets.SERVICE_ACCOUNT_JSON }}" > service-account-file.json
 
     - name: Install dependencies
       run: |
@@ -34,4 +33,3 @@ jobs:
         BLOGGER_BLOG_ID: ${{ secrets.BLOGGER_BLOG_ID }}
         RSS_FEED_URLS: ${{ secrets.RSS_FEED_URLS }}
         SERVICE_ACCOUNT_FILE: ${{ github.workspace }}/service-account-file.json
-        
