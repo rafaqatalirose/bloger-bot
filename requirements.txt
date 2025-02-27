@@ -1,3 +1,7 @@
 beautifulsoup4  
-lxml  
+lxml 
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+beautifulsoup4
 requests  
