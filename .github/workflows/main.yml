@@ -34,3 +34,7 @@ jobs:
         BLOGGER_BLOG_ID: ${{ secrets.BLOGGER_BLOG_ID }}
         RSS_FEED_URLS: ${{ secrets.RSS_FEED_URLS }}
         SERVICE_ACCOUNT_FILE: ${{ github.workspace }}/service-account-file.json
+        git add .github/workflows/main.yml
+git commit -m "Fix service account key encoding"
+git push origin main
+
