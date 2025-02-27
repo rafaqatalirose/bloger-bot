@@ -2,16 +2,15 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+from google.oauth2 import service_account
+from google.auth.transport.requests import Request
+from google.auth import exceptions
 
 BLOG_ID = os.environ.get("BLOGGER_BLOG_ID")
-API_KEY = os.environ.get("BLOGGER_API_KEY")
 RSS_FEED_URLS = os.environ.get("RSS_FEED_URLS")  # Comma-separated URLs
-ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN")
 
-headers = {
-    "Authorization": f"Bearer {ACCESS_TOKEN}",
-    "Content-Type": "application/json"
-}
+credentials = service_account.Credentials.from_service_account_file('path/to/your/service-account-file.json')
+scoped_credentials = credentials.with_scopes(['https://www.googleapis.com/auth/blogger'])
 
 def fetch_rss(feed_url):
     try:
@@ -64,7 +63,7 @@ def extract_tags(title):
     return unique_tags[:5]
 
 def post_to_blogger(post):
-    url = f"https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts?key={API_KEY}"
+    url = f"https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts"
     data = {
         "kind": "blogger#post",
         "title": post["title"],
@@ -72,7 +71,10 @@ def post_to_blogger(post):
         "labels": post["tags"]
     }
     try:
-        response = requests.post(url, json=data)
+        headers = {
+            'Authorization': 'Bearer ' + scoped_credentials.token
+        }
+        response = requests.post(url, json=data, headers=headers)
         response.raise_for_status()
         print(f"Successfully posted to Blogger: {post['title']}")
         return response.json()
