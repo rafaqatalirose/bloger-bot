@@ -72,4 +72,22 @@ def post_to_blogger(post):
         "labels": post["tags"]
     }
     try:
-        response = requests.post(url, json=data
+        response = requests.post(url, json=data)
+        response.raise_for_status()
+        print(f"Successfully posted to Blogger: {post['title']}")
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error posting to Blogger: {post['title']}\n{e}")
+        return None
+
+def main():
+    feed_urls = RSS_FEED_URLS.split(",")
+    for feed_url in feed_urls:
+        rss_xml = fetch_rss(feed_url)
+        if rss_xml:
+            posts = extract_content(rss_xml)
+            for post in posts:
+                post_to_blogger(post)
+
+if __name__ == "__main__":
+    main()
